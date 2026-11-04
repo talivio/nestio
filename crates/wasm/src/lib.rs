@@ -6,8 +6,31 @@ use nestio_core::parts::{self, AnalyzeOptions};
 use nestio_core::strip::{self, StripJob, StripResult};
 use nestio_core::{dxf_in, dxf_out, model::Drawing};
 use std::future::Future;
+use wasm_bindgen::JsCast;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::{JsFuture, future_to_promise};
+
+/// Rust paniği WASM'da tuzağa dönüşür ve iletisi kaybolur; ileti önce
+/// `globalThis.__nestioPanic` (varsa) ve konsola yazılır.
+#[wasm_bindgen(start)]
+pub fn start() {
+    std::panic::set_hook(Box::new(|info| {
+        let msg = JsValue::from_str(&info.to_string());
+        let g = js_sys::global();
+        if let Ok(f) = js_sys::Reflect::get(&g, &JsValue::from_str("__nestioPanic")) {
+            if let Some(f) = f.dyn_ref::<Function>() {
+                let _ = f.call1(&JsValue::NULL, &msg);
+            }
+        }
+        if let Ok(c) = js_sys::Reflect::get(&g, &JsValue::from_str("console")) {
+            if let Ok(e) = js_sys::Reflect::get(&c, &JsValue::from_str("error")) {
+                if let Some(e) = e.dyn_ref::<Function>() {
+                    let _ = e.call1(&c, &msg);
+                }
+            }
+        }
+    }));
+}
 
 fn err(e: impl ToString) -> JsError {
     JsError::new(&e.to_string())

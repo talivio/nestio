@@ -105,6 +105,14 @@ export function solve_strip(job_json) {
 }
 
 /**
+ * Rust paniği WASM'da tuzağa dönüşür ve iletisi kaybolur; ileti önce
+ * `globalThis.__nestioPanic` (varsa) ve konsola yazılır.
+ */
+export function start() {
+    wasm.start();
+}
+
+/**
  * Dizilim DXF'i.
  * @param {string} parts_json
  * @param {string} plates_json
@@ -184,6 +192,10 @@ function __wbg_get_imports() {
             const ret = arg0.getTimezoneOffset();
             return ret;
         },
+        __wbg_get_2080c49015e35254: function() { return handleError(function (arg0, arg1) {
+            const ret = Reflect.get(arg0, arg1);
+            return ret;
+        }, arguments); },
         __wbg_new_0_36d738a0c8cfac43: function() {
             const ret = new Date();
             return ret;
