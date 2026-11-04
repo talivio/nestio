@@ -1,7 +1,9 @@
 // Nestio arayüzü. Bütün hesap Web Worker'larda (WASM) yapılır; ağa yalnız sayfanın
 // kendi dosyaları için istek gider, çizim hiçbir yere gönderilmez.
+import { t, tm, numLocale } from './i18n.js';
+
 const $ = (s) => document.querySelector(s);
-const fmt = (n, d = 0) => Number(n).toLocaleString('tr-TR', { maximumFractionDigits: d, minimumFractionDigits: d });
+const fmt = (n, d = 0) => Number(n).toLocaleString(numLocale, { maximumFractionDigits: d, minimumFractionDigits: d });
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 const cores = Math.max(1, Math.min(12, (navigator.hardwareConcurrency || 4) - 1));
@@ -34,7 +36,7 @@ function startCoord() {
     pending.delete(m.id);
     m.type === 'error' ? p.reject(new Error(m.error)) : p.resolve(m);
   };
-  coord.onerror = (e) => status('Hesap işçisi başlatılamadı: ' + (e.message || 'tarayıcınız modül işçilerini desteklemiyor olabilir'), true);
+  coord.onerror = (e) => status(t('app.workerFail', { e: tm(e.message) || t('app.workerFailHint') }), true);
 }
 function ask(msg, transfer) {
   if (!coord) startCoord();
@@ -45,10 +47,10 @@ function ask(msg, transfer) {
   });
 }
 
-function status(t, bad) {
+function status(msg, bad) {
   const el = $('#status');
-  el.textContent = t;
-  el.classList.toggle('hidden', !t);
+  el.textContent = msg;
+  el.classList.toggle('hidden', !msg);
   el.style.color = bad ? 'var(--bad)' : '';
 }
 
@@ -58,7 +60,7 @@ async function readDwg(bytes) {
   try {
     return await new Promise((resolve, reject) => {
       w.onmessage = (ev) => (ev.data.ok ? resolve(ev.data.drawing) : reject(new Error(ev.data.error)));
-      w.onerror = () => reject(new Error('DWG okuyucu yüklenemedi'));
+      w.onerror = () => reject(new Error(t('app.dwgFail')));
       w.postMessage({ bytes }, [bytes]);
     });
   } finally {
@@ -77,17 +79,17 @@ async function loadFile(name, buf) {
       status('DWG okunuyor (okuyucu ilk seferde ~11 MB iner)…');
       S.drawing = await readDwg(buf);
     } else {
-      status('Çizim okunuyor…');
+      status(t('app.reading'));
       S.drawing = (await ask({ type: 'dxf', bytes: buf }, [buf])).drawing;
     }
     await analyze(true);
   } catch (e) {
-    status('Çizim okunamadı: ' + e.message, true);
+    status(t('app.readFail', { e: tm(e.message) }), true);
   }
 }
 
 async function analyze(first) {
-  status('Parçalar çıkarılıyor…');
+  status(t('app.extracting'));
   const t0 = performance.now();
   const r = await ask({ type: 'analyze', drawing: S.drawing, options: { ignore_layers: [...S.ignoreLayers], plates: [] } });
   S.analysis = JSON.parse(r.analysis);
@@ -96,7 +98,7 @@ async function analyze(first) {
     if (!S.plates.length) S.plates = [{ w: 3000, h: 1500, count: null }];
   }
   const n = S.analysis.parts.filter((p) => role(p) === 'part').length;
-  status(n ? '' : 'Çizimde kapalı kontur bulunamadı. Katmanları ve çizimin kapalı olduğunu kontrol edin.', !n);
+  status(n ? '' : t('app.noContours'), !n);
   console.debug('çözümleme', Math.round(performance.now() - t0), 'ms');
   renderSetup();
   $('#setup').classList.remove('hidden');
@@ -115,6 +117,14 @@ function groupPlates(list) {
 }
 
 const role = (p) => S.role[p.id] ?? p.role;
+const roleOptions = () => ['part', 'plate', 'ignore'].map((r) => `<option value="${r}">${t('role.' + r)}</option>`).join('');
+
+function setRole(p, r) {
+  if (r === p.role) delete S.role[p.id];
+  else S.role[p.id] = r;
+  S.plates = mergePlates();
+  renderSetup();
+}
 const qty = (p) => S.qty[p.id] ?? p.qty;
 
 // ── kurulum ekranı ───────────────────────────────────────────────────────────
@@ -158,43 +168,43 @@ function renderSetup() {
   const active = parts.filter((p) => role(p) === 'part');
   const count = active.reduce((s, p) => s + qty(p), 0);
   const area = active.reduce((s, p) => s + p.area * qty(p), 0);
-  $('#partsum').textContent = `${count} adet · ${fmt(area / 1e6, 2)} m²`;
+  $('#partsum').textContent = t('app.partsum', { n: count, a: fmt(area / 1e6, 2) });
 
-  const notes = [...a.notes];
+  const notes = a.notes.map(tm);
   const warned = parts.filter((p) => p.notes.length);
-  if (a.units !== 1) notes.push(`Çizim birimi mm değil; ölçüler ${a.units}× çarpanla milimetreye çevrildi.`);
-  if (warned.length) notes.push(`${warned.length} parçada uyarı var (ünlemli kareler); üzerine gelince görünür.`);
-  $('#notes').innerHTML = notes.length ? '<b>Dikkat</b><ul>' + notes.map((n) => `<li>${esc(n)}</li>`).join('') + '</ul>' : '';
+  if (a.units !== 1) notes.push(t('app.units', { u: a.units }));
+  if (warned.length) notes.push(t('app.warned', { n: warned.length }));
+  const manual = parts.filter((p) => S.role[p.id] && S.role[p.id] !== p.role);
+  const label = { part: t('role.partL'), plate: t('role.plateL'), ignore: t('role.ignoreL') };
+  if (manual.length) notes.push(t('app.manual', { list: manual.map((p) => `${p.name} → ${label[S.role[p.id]]}`).join(', ') }));
+  $('#notes').innerHTML = notes.length ? `<b>${t('app.attention')}</b><ul>` + notes.map((n) => `<li>${esc(n)}</li>`).join('') + '</ul>' + (manual.length ? `<button type="button" class="linkbtn" id="resetroles">${t('app.resetRoles')}</button>` : '') : '';
+  if (manual.length) $('#resetroles').onclick = () => { S.role = {}; S.plates = mergePlates(); renderSetup(); };
   $('#notes').classList.toggle('hidden', !notes.length);
 
   const tiles = $('#tiles');
   tiles.innerHTML = '';
   for (const p of parts) {
     const r = role(p);
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = `tile cut-sm ${r === 'part' ? '' : r} ${p.notes.length ? 'warn' : ''}`;
-    b.title = [`${p.name} — ${fmt(p.w)} × ${fmt(p.h)} mm`, p.thick ? `kalınlık ${fmt(p.thick, 1)} mm` : '', ...p.notes, 'Tıklayın: parça → plaka → yok say'].filter(Boolean).join('\n');
-    b.innerHTML = `<canvas></canvas><div class="nm">${esc(p.name)}</div><div class="sz">${fmt(p.w)} × ${fmt(p.h)}</div>${r === 'part' && qty(p) > 1 ? `<span class="qty">×${qty(p)}</span>` : ''}`;
-    b.onclick = () => {
-      const next = { part: 'plate', plate: 'ignore', ignore: 'part' }[r];
-      S.role[p.id] = next;
-      if (next === 'plate' || r === 'plate') S.plates = mergePlates();
-      renderSetup();
-    };
-    tiles.append(b);
-    requestAnimationFrame(() => thumb(b.querySelector('canvas'), p));
+    const d = document.createElement('div');
+    d.className = `tile cut-sm ${r === 'part' ? '' : r} ${p.notes.length ? 'warn' : ''}`;
+    d.title = [`${p.name} — ${fmt(p.w)} × ${fmt(p.h)} mm`, p.thick ? t('app.thickness', { t: fmt(p.thick, 1) }) : '', ...p.notes.map(tm)].filter(Boolean).join('\n');
+    d.innerHTML = `<canvas></canvas><div class="nm">${esc(p.name)}</div><div class="sz">${fmt(p.w)} × ${fmt(p.h)}</div>${r === 'part' && qty(p) > 1 ? `<span class="qty">×${qty(p)}</span>` : ''}<select aria-label="${esc(t('app.typeOf', { name: p.name }))}">${roleOptions()}</select>`;
+    const sel = d.querySelector('select');
+    sel.value = r;
+    sel.onchange = () => setRole(p, sel.value);
+    tiles.append(d);
+    requestAnimationFrame(() => thumb(d.querySelector('canvas'), p));
   }
 
   const tb = $('#ptable tbody');
   tb.innerHTML = '';
   for (const p of parts) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${esc(p.name)}${p.notes.length ? ' <span title="' + esc(p.notes.join('\n')) + '" style="color:var(--warn)">⚠</span>' : ''}</td><td class="mono">${fmt(p.w)} × ${fmt(p.h)}</td><td><input type="number" min="0" step="1" value="${qty(p)}" aria-label="Adet"></td><td><select aria-label="Tür"><option value="part">Parça</option><option value="plate">Plaka</option><option value="ignore">Yok say</option></select></td>`;
+    tr.innerHTML = `<td>${esc(p.name)}${p.notes.length ? ' <span title="' + esc(p.notes.map(tm).join('\n')) + '" style="color:var(--warn)">⚠</span>' : ''}</td><td class="mono">${fmt(p.w)} × ${fmt(p.h)}</td><td><input type="number" min="0" step="1" value="${qty(p)}" aria-label="${t('app.qty')}"></td><td><select aria-label="${t('app.type')}">${roleOptions()}</select></td>`;
     const [inp, sel] = [tr.querySelector('input'), tr.querySelector('select')];
     sel.value = role(p);
     inp.onchange = () => { S.qty[p.id] = Math.max(0, Math.round(+inp.value || 0)); renderSetup(); };
-    sel.onchange = () => { S.role[p.id] = sel.value; S.plates = mergePlates(); renderSetup(); };
+    sel.onchange = () => setRole(p, sel.value);
     tb.append(tr);
   }
 
@@ -226,7 +236,7 @@ function renderPlates() {
   tb.innerHTML = '';
   S.plates.forEach((p, i) => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td><input type="number" min="1" step="1" value="${p.w}" aria-label="Boy (mm)"></td><td><input type="number" min="1" step="1" value="${p.h}" aria-label="En (mm)"></td><td><input type="number" min="1" step="1" value="${p.count ?? ''}" placeholder="∞" aria-label="Adet"></td><td><button type="button" class="linkbtn" aria-label="Sil">Sil</button></td>`;
+    tr.innerHTML = `<td><input type="number" min="1" step="1" value="${p.w}" aria-label="${t('app.lengthMm')}"></td><td><input type="number" min="1" step="1" value="${p.h}" aria-label="${t('app.widthMm')}"></td><td><input type="number" min="1" step="1" value="${p.count ?? ''}" placeholder="∞" aria-label="${t('app.qty')}"></td><td><button type="button" class="linkbtn">${t('app.delete')}</button></td>`;
     const [w, h, c] = tr.querySelectorAll('input');
     const upd = () => { p.w = +w.value; p.h = +h.value; p.count = c.value === '' ? null : Math.max(1, Math.round(+c.value)); p.manual = true; };
     w.onchange = h.onchange = c.onchange = upd;
@@ -251,15 +261,15 @@ async function run() {
   const parts = S.analysis.parts.filter((p) => role(p) === 'part' && qty(p) > 0)
     .map((p) => ({ id: p.id, name: p.name, shape: p.shape, qty: qty(p) }));
   const plates = S.plates.filter((p) => p.w > 0 && p.h > 0).map((p) => ({ name: `${p.w} × ${p.h}`, w: p.w, h: p.h, count: p.count }));
-  if (!parts.length) return status('Dizilecek parça yok.', true);
-  if (!plates.length) return status('En az bir plaka ölçüsü girin.', true);
+  if (!parts.length) return status(t('app.noParts'), true);
+  if (!plates.length) return status(t('app.noSheets'), true);
   const gap = Math.max(0, +$('#gap').value || 0);
   const margin = Math.max(0, +$('#margin').value || 0);
   S.input = { parts, plates, gap, margin, secs: S.secs, fill_holes: $('#holes').checked, improve: $('#improve').checked, seed: Math.floor(Math.random() * 1e9) };
   status('');
   $('#log').textContent = '';
   $('#bar').style.width = '0';
-  $('#worktitle').textContent = 'Diziliyor…';
+  $('#worktitle').textContent = t('app.nesting');
   $('#work').classList.remove('hidden');
   $('#result').classList.add('hidden');
   $('#run').disabled = true;
@@ -272,7 +282,7 @@ async function run() {
     S.out.secs = (performance.now() - t0) / 1000;
     showResult();
   } catch (e) {
-    if (e.message !== 'durduruldu') status('Dizme başarısız: ' + e.message, true);
+    if (e.message !== 'durduruldu') status(t('app.nestFail', { e: tm(e.message) }), true);
   } finally {
     clearInterval(timer);
     $('#run').disabled = false;
@@ -284,12 +294,12 @@ const clock = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStar
 
 function onProgress(ev) {
   const log = $('#log');
-  log.textContent += `[${clock((performance.now() - t0) / 1000)}] ${ev.msg}\n`;
+  log.textContent += `[${clock((performance.now() - t0) / 1000)}] ${tm(ev.msg)}\n`;
   log.scrollTop = log.scrollHeight;
   $('#bar').style.width = Math.round(Math.min(1, ev.frac) * 100) + '%';
   if (ev.plates) {
     S.out = { plates: ev.plates, live: true };
-    $('#worktitle').textContent = `Diziliyor… ${ev.plates.length} plaka hazır`;
+    $('#worktitle').textContent = t('app.nestingReady', { n: ev.plates.length });
     renderPlatesView(ev.plates);
     $('#result').classList.remove('hidden');
   }
@@ -301,7 +311,7 @@ $('#stop').onclick = () => {
   coord = null;
   for (const p of pending.values()) p.reject(new Error('durduruldu'));
   pending.clear();
-  status('Durduruldu.');
+  status(t('app.stopped'));
 };
 
 // ── sonuç ────────────────────────────────────────────────────────────────────
@@ -320,7 +330,7 @@ function renderPlatesView(plates) {
     d.className = 'plate';
     const fill = pl.fill * 100;
     const left = pl.w - pl.used - S.input.gap;
-    d.innerHTML = `<div class="row" style="margin-bottom:6px"><h3>Plaka ${k + 1}</h3><span class="muted">${fmt(pl.w)} × ${fmt(pl.h)} mm · ${pl.items.length} parça · doluluk %${fmt(fill, 1)} · kullanılan boy ${fmt(pl.used)} mm${left > 1 ? ` · artık ${fmt(left)} × ${fmt(pl.h)} mm` : ''}</span></div><canvas class="cut-sm"></canvas>`;
+    d.innerHTML = `<div class="row" style="margin-bottom:6px"><h3>${t('app.sheet', { k: k + 1 })}</h3><span class="muted">${t('app.sheetLine', { w: fmt(pl.w), h: fmt(pl.h), n: pl.items.length, f: fmt(fill, 1), u: fmt(pl.used) })}${left > 1 ? t('app.remnant', { r: fmt(left), h: fmt(pl.h) }) : ''}</span></div><canvas class="cut-sm"></canvas>`;
     box.append(d);
     const cv = d.querySelector('canvas');
     requestAnimationFrame(() => drawPlate(cv, pl));
@@ -369,19 +379,19 @@ function showResult() {
   const last = o.plates[o.plates.length - 1];
   const need = S.input.parts.reduce((a, p) => a + p.qty, 0);
   $('#summary').innerHTML = [
-    [o.plates.length, 'plaka'],
-    ['%' + fmt((100 * used) / Math.max(1, total), 1), 'toplam doluluk'],
-    [last ? fmt(last.used) + ' mm' : '–', 'son plakada kullanılan boy'],
-    [`${o.check.placed} / ${need}`, 'yerleşen parça'],
-    [o.in_holes, 'delik içinde'],
-    [clock(o.secs), 'süre'],
+    [o.plates.length, t('stat.sheets')],
+    [t('app.pct', { v: fmt((100 * used) / Math.max(1, total), 1) }), t('stat.fill')],
+    [last ? fmt(last.used) + ' mm' : '–', t('stat.lastUsed')],
+    [`${o.check.placed} / ${need}`, t('stat.placed')],
+    [o.in_holes, t('stat.holes')],
+    [clock(o.secs), t('stat.time')],
   ].map(([b, s]) => `<div class="stat cut-sm"><b>${b}</b><span>${s}</span></div>`).join('');
   $('#verdict').innerHTML = o.check.ok
-    ? '<span class="badge ok cut-sm">Denetim hatasız</span>'
-    : `<span class="badge bad cut-sm">${o.check.errors.length} denetim hatası</span>`;
+    ? `<span class="badge ok cut-sm">${t('app.checkOk')}</span>`
+    : `<span class="badge bad cut-sm">${t('app.checkBad', { n: o.check.errors.length })}</span>`;
   const notes = [];
-  if (o.unplaced.length) notes.push(`${o.unplaced.length} parça yerleşmedi: ` + [...new Set(o.unplaced.map((u) => `${S.input.parts[u[0]].name} (${u[2]})`))].join(', '));
-  notes.push(...o.check.errors.slice(0, 8));
+  if (o.unplaced.length) notes.push(t('app.unplaced', { n: o.unplaced.length }) + [...new Set(o.unplaced.map((u) => `${S.input.parts[u[0]].name} (${u[2]})`))].join(', '));
+  notes.push(...o.check.errors.slice(0, 8).map(tm));
   $('#rnotes').innerHTML = notes.length ? '<ul>' + notes.map((n) => `<li>${esc(n)}</li>`).join('') + '</ul>' : '';
   $('#rnotes').classList.toggle('hidden', !notes.length);
   renderPlatesView(o.plates);
@@ -394,7 +404,7 @@ $('#dl').onclick = async () => {
   const r = await ask({ type: 'write', parts: S.input.parts, plates: S.out.plates, gap: S.input.gap });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([r.bytes], { type: 'application/dxf' }));
-  a.download = `${S.fileName}-dizilim.dxf`;
+  a.download = `${S.fileName}-${t('app.fileSuffix')}.dxf`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 };

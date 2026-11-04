@@ -1,93 +1,139 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nestio — ücretsiz plaka dizme (nesting)</title>
-<meta name="description" content="DXF ya da DWG çiziminizdeki parçaları plakaya en az fireyle dizen ücretsiz, açık kaynak araç. Hesap tarayıcınızda yapılır, çiziminiz bilgisayarınızdan çıkmaz.">
-<meta name="theme-color" content="#2470b4">
-<link rel="icon" href="img/talivio-mark.svg" type="image/svg+xml">
+<!-- Dil: varsayılan İngilizce (bu dosyanın metni). ?lang=tr / ?lang=et ya da
+     seçilmiş dil (localStorage) i18n.js ile uygulanır; anahtarlar data-i18n*. -->
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search).get('lang'), s = null;
+    try { s = localStorage.getItem('nestio-lang'); } catch (e) {}
+    var l = ['en', 'tr', 'et'].indexOf(q) >= 0 ? q : (['tr', 'et'].indexOf(s) >= 0 && !q ? s : 'en');
+    document.documentElement.lang = l;
+    if (l !== 'en') {
+      document.documentElement.classList.add('i18n-pending');
+      setTimeout(function () { document.documentElement.classList.remove('i18n-pending'); }, 1500);
+    }
+  })();
+</script>
+<title data-i18n="meta.title">Nestio — free sheet nesting in your browser</title>
+<meta name="description" data-i18n-content="meta.description" content="Free, open-source tool that nests the parts in your DXF or DWG drawing onto sheets with the least scrap. No install, no sign-up: everything runs in your browser and your drawing never leaves your computer.">
+<link rel="canonical" href="https://nestio.talivio.com/">
+<link rel="alternate" hreflang="en" href="https://nestio.talivio.com/">
+<link rel="alternate" hreflang="tr" href="https://nestio.talivio.com/?lang=tr">
+<link rel="alternate" hreflang="et" href="https://nestio.talivio.com/?lang=et">
+<link rel="alternate" hreflang="x-default" href="https://nestio.talivio.com/">
+<meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141519" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nestio">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Nestio — free sheet nesting in your browser">
+<meta property="og:description" content="Drop a DXF/DWG drawing, get parts nested with the least scrap and a cut-ready DXF back. Free, open source, nothing to install.">
+<meta property="og:url" content="https://nestio.talivio.com/">
+<meta property="og:image" content="https://nestio.talivio.com/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Nestio","applicationCategory":"DesignApplication","operatingSystem":"Web browser","url":"https://nestio.talivio.com/","description":"Free, open-source tool that nests the parts of DXF and DWG drawings onto sheets with the least scrap. Runs in the browser.","inLanguage":["en","tr","et"],"license":"https://www.gnu.org/licenses/gpl-3.0.html","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"publisher":{"@type":"Organization","name":"Talivio Technology OÜ","url":"https://talivio.com"}}
+</script>
 </head>
 <body>
+<a class="skip" href="#arac" data-i18n="nav.skip">Skip to the tool</a>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="./"><picture><source srcset="img/talivio-mark-white.svg" media="(prefers-color-scheme: dark)"><img src="img/talivio-mark.svg" alt=""></picture><b>Nestio</b><small>Talivio</small></a>
-    <nav><a href="#nasil">Nasıl çalışır</a><a href="https://github.com/talivio/nestio">Kaynak kodu</a></nav>
+    <a class="brand" href="./" data-i18n-aria="nav.home" aria-label="Nestio, home"><picture><source srcset="img/talivio-mark-white.svg" media="(prefers-color-scheme: dark)"><img src="img/talivio-mark.svg" alt="" width="28" height="28"></picture><b>Nestio</b></a>
+    <nav data-i18n-aria="nav.label" aria-label="Main menu">
+      <a href="#nasil" data-i18n="nav.how">How it works</a>
+      <a href="#sss" data-i18n="nav.faq">FAQ</a>
+      <span class="langs" data-i18n-aria="nav.lang" role="group" aria-label="Language"><a href="./" hreflang="en" data-lang="en">EN</a><a href="?lang=tr" hreflang="tr" data-lang="tr">TR</a><a href="?lang=et" hreflang="et" data-lang="et">ET</a></span>
+      <a class="btn ghost small cut-sm" href="https://github.com/talivio/nestio"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>GitHub</a>
+    </nav>
   </div>
 </header>
 
-<main class="wrap">
+<main id="arac">
   <section class="hero">
-    <div>
-      <h1>Parçaları plakaya en az fireyle dizin</h1>
-      <p class="lead">DXF ya da DWG çiziminizi bırakın; Nestio parçaları ayırır, deliklerin içini değerlendirir, plaka sayısını en aza indirir ve kesime hazır DXF verir.</p>
-      <div class="pills">
-        <span class="pill cut-sm">Ücretsiz, üyelik yok</span>
-        <span class="pill cut-sm">Açık kaynak</span>
-        <span class="pill cut-sm">Çiziminiz bilgisayarınızdan çıkmaz</span>
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow" data-i18n="hero.eyebrow">Free · Open source · Nothing to install</p>
+        <h1 data-i18n="hero.title">Nest parts onto sheets with the least scrap</h1>
+        <p class="lead" data-i18n="hero.lead">Drop your DXF or DWG drawing. Nestio separates the parts, uses the holes inside them, keeps the sheet count down and gives you a cut-ready DXF.</p>
+        <div class="cta">
+          <button class="btn cut-sm" type="button" id="try"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg><span data-i18n="hero.try">Try the sample drawing</span></button>
+          <button class="btn ghost cut-sm" type="button" id="pick" data-i18n="hero.pick">Choose my drawing</button>
+        </div>
+        <p class="proof"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg><span data-i18n="hero.proof">Your file is never sent to a server. The work is done by this computer's processor.</span></p>
       </div>
-    </div>
-    <div class="lift">
-      <label class="drop cut-lg" id="drop" tabindex="0">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/></svg>
-        <strong>Çizimi buraya bırakın</strong>
-        <span class="muted">ya da tıklayıp seçin · DXF, DWG</span>
-        <input type="file" id="file" accept=".dxf,.dwg" hidden>
-        <button type="button" class="linkbtn" id="sample">Örnek çizimle dene</button>
-      </label>
+      <div class="glow">
+        <label class="drop cut-lg" id="drop" tabindex="0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/></svg>
+          <strong data-i18n="drop.title">Drop the drawing here</strong>
+          <span class="muted" data-i18n="drop.hint">or click to choose · DXF, DWG</span>
+          <input type="file" id="file" accept=".dxf,.dwg" hidden>
+          <button type="button" class="linkbtn" id="sample" data-i18n="hero.try">Try the sample drawing</button>
+          <span class="drop-foot" data-i18n="drop.foot">No sign-up · No limits · No cookies or trackers</span>
+        </label>
+      </div>
     </div>
   </section>
 
+  <div class="wrap">
   <p class="muted hidden" id="status" role="status" aria-live="polite"></p>
 
   <section class="step hidden" id="setup">
     <div class="grid2">
       <div class="lift"><div class="card cut-lg stack">
-        <div class="row"><h2>Parçalar</h2><span class="muted" id="partsum"></span></div>
-        <div class="legend"><span><i style="background:var(--part)"></i>Parça</span><span><i style="background:color-mix(in srgb,var(--accent) 30%,var(--bg))"></i>Plaka</span><span><i style="background:var(--ink-300)"></i>Yok sayılan</span><span>Kareye tıklayınca türü değişir</span></div>
+        <div class="row"><h2 data-i18n="setup.parts">Parts</h2><span class="muted" id="partsum"></span></div>
+        <div class="legend"><span><i style="background:var(--part)"></i><span data-i18n="legend.part">Part</span></span><span><i style="background:color-mix(in srgb,var(--accent) 30%,var(--bg))"></i><span data-i18n="legend.plate">Sheet</span></span><span><i style="background:var(--ink-300)"></i><span data-i18n="legend.ignore">Ignored</span></span><span data-i18n="legend.hint">Change the type with the menu under each tile</span></div>
         <div class="notes cut-sm hidden" id="notes"></div>
         <div class="tiles" id="tiles"></div>
         <details>
-          <summary>Liste görünümü ve katmanlar</summary>
-          <div class="scroll"><table class="t" id="ptable"><thead><tr><th>Ad</th><th>Ölçü (mm)</th><th>Adet</th><th>Tür</th></tr></thead><tbody></tbody></table></div>
-          <h3 style="margin-top:14px">Katmanlar</h3>
-          <p class="muted" style="margin:4px 0">İşareti kaldırılan katman okunmaz (yazı, ölçü, çerçeve katmanları gibi).</p>
+          <summary data-i18n="setup.listLayers">List view and layers</summary>
+          <div class="scroll"><table class="t" id="ptable"><thead><tr><th data-i18n="th.name">Name</th><th data-i18n="th.size">Size (mm)</th><th data-i18n="th.qty">Qty</th><th data-i18n="th.type">Type</th></tr></thead><tbody></tbody></table></div>
+          <h3 style="margin-top:14px" data-i18n="setup.layers">Layers</h3>
+          <p class="muted" style="margin:4px 0" data-i18n="setup.layersHint">Unticked layers are not read (text, dimension or frame layers, for example).</p>
           <div class="row" id="layers"></div>
         </details>
       </div></div>
 
       <div class="lift"><div class="card cut-lg stack">
-        <h2>Ayarlar</h2>
+        <h2 data-i18n="setup.settings">Settings</h2>
         <div>
-          <h3>Plakalar</h3>
-          <table class="t" id="plates"><thead><tr><th>Boy</th><th>En</th><th>Adet</th><th></th></tr></thead><tbody></tbody></table>
-          <div class="row" style="margin-top:8px"><button class="btn ghost small cut-sm" id="addplate" type="button">Plaka ekle</button><span class="muted" style="font-size:12px">Adet boşsa sınırsız.</span></div>
+          <h3 data-i18n="setup.sheets">Sheets</h3>
+          <table class="t" id="plates"><thead><tr><th data-i18n="th.length">Length</th><th data-i18n="th.width">Width</th><th data-i18n="th.qty">Qty</th><th></th></tr></thead><tbody></tbody></table>
+          <div class="row" style="margin-top:8px"><button class="btn ghost small cut-sm" id="addplate" type="button" data-i18n="setup.addSheet">Add sheet</button><span class="muted" style="font-size:12px" data-i18n="setup.qtyHint">Empty quantity means unlimited.</span></div>
         </div>
         <div class="fields">
-          <label class="f">Parçalar arası boşluk (mm)<input type="number" id="gap" min="0" step="0.5" value="10"></label>
-          <label class="f">Kenar payı (mm)<input type="number" id="margin" min="0" step="0.5" value="10"></label>
+          <label class="f"><span data-i18n="setup.gap">Gap between parts (mm)</span><input type="number" id="gap" min="0" step="0.5" value="10"></label>
+          <label class="f"><span data-i18n="setup.margin">Edge margin (mm)</span><input type="number" id="margin" min="0" step="0.5" value="10"></label>
         </div>
         <div>
-          <span class="f">Arama süresi (plaka başına)</span>
+          <span class="f" data-i18n="setup.time">Search time (per sheet)</span>
           <div class="seg" id="time" style="margin-top:4px">
-            <button type="button" data-s="15">Hızlı · 15 sn</button>
-            <button type="button" data-s="45" aria-pressed="true">Dengeli · 45 sn</button>
-            <button type="button" data-s="120">Titiz · 2 dk</button>
+            <button type="button" data-s="15" data-i18n="setup.fast">Fast · 15 s</button>
+            <button type="button" data-s="45" aria-pressed="true" data-i18n="setup.balanced">Balanced · 45 s</button>
+            <button type="button" data-s="120" data-i18n="setup.thorough">Thorough · 2 min</button>
           </div>
         </div>
-        <label class="check"><input type="checkbox" id="holes" checked><span>Deliklerin içine küçük parça yerleştir</span></label>
-        <label class="check"><input type="checkbox" id="improve" checked><span>Son plakayı boşaltmayı dene (artık tek parça kalsın)</span></label>
-        <p class="muted" style="font-size:13px;margin:0">Döndürme serbest, aynalama yok. Hesap bu bilgisayarın <span id="cores"></span> çekirdeğiyle yapılır.</p>
-        <button class="btn cut-sm" id="run" type="button">Diz</button>
+        <label class="check"><input type="checkbox" id="holes" checked><span data-i18n="setup.holes">Place small parts inside holes</span></label>
+        <label class="check"><input type="checkbox" id="improve" checked><span data-i18n="setup.improve">Try to empty the last sheet (leave one solid remnant)</span></label>
+        <p class="muted" style="font-size:13px;margin:0"><span data-i18n="setup.cores">Free rotation, no mirroring. The work runs on this computer's cores:</span> <span id="cores"></span></p>
+        <button class="btn cut-sm" id="run" type="button" data-i18n="setup.run">Nest</button>
       </div></div>
     </div>
   </section>
 
   <section class="step hidden" id="work">
     <div class="lift"><div class="card cut-lg stack">
-      <div class="row"><h2 id="worktitle">Diziliyor…</h2><span class="muted" id="elapsed"></span><button class="btn ghost small cut-sm" id="stop" type="button" style="margin-left:auto">Durdur</button></div>
+      <div class="row"><h2 id="worktitle" data-i18n="work.title">Nesting…</h2><span class="muted" id="elapsed"></span><button class="btn ghost small cut-sm" id="stop" type="button" style="margin-left:auto" data-i18n="work.stop">Stop</button></div>
       <div class="progress cut-sm"><div id="bar"></div></div>
       <div class="log" id="log"></div>
     </div></div>
@@ -95,10 +141,10 @@
 
   <section class="step hidden" id="result">
     <div class="lift"><div class="card cut-lg stack">
-      <div class="row"><h2>Sonuç</h2><span id="verdict"></span>
+      <div class="row"><h2 data-i18n="result.title">Result</h2><span id="verdict"></span>
         <div class="row" style="margin-left:auto">
-          <button class="btn cut-sm" id="dl" type="button">DXF indir</button>
-          <button class="btn ghost cut-sm" id="again" type="button">Ayarlara dön</button>
+          <button class="btn cut-sm" id="dl" type="button" data-i18n="result.download">Download DXF</button>
+          <button class="btn ghost cut-sm" id="again" type="button" data-i18n="result.back">Back to settings</button>
         </div>
       </div>
       <div class="stats" id="summary"></div>
@@ -106,26 +152,159 @@
       <div class="plates" id="plateviews"></div>
     </div></div>
   </section>
+  </div>
 
-  <section class="step" id="nasil">
-    <h2 style="margin-bottom:14px">Nasıl çalışır</h2>
-    <div class="how">
-      <div class="lift"><div class="card cut"><h3>1 · Parçaları ayırır</h3><p>Çizgi, yay, spline ve blokları kapalı konturlara çevirir; iç içe konturlardan delikleri bulur. 3B tel kafes çizilmiş levhaları düzleme indirir.</p></div></div>
-      <div class="lift"><div class="card cut"><h3>2 · Delikleri değerlendirir</h3><p>Büyük parçaların boşluklarına sığan küçük parçaları, boşluk payını koruyarak oraya yerleştirir.</p></div></div>
-      <div class="lift"><div class="card cut"><h3>3 · Plakaları doldurur</h3><p>Açık kaynak <a href="https://github.com/JeroenGar/sparrow">sparrow</a> algoritmasıyla parçaları serbest açıyla döndürerek sıkıştırır; boş alan plakanın ucunda tek parça artık olarak kalır.</p></div></div>
-      <div class="lift"><div class="card cut"><h3>4 · Denetler</h3><p>Sonuç bağımsız bir denetimden geçer: her parça kenar payı içinde mi, aralar en az istenen boşluk kadar mı.</p></div></div>
+  <!-- ─── Tanıtım: gerçek ekranlar (sentetik örnek çizim, examples/uret.py) ─── -->
+  <section class="band" id="nasil" aria-labelledby="tur-baslik">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow" data-i18n="tour.eyebrow">Inside Nestio</p>
+        <h2 id="tur-baslik" data-i18n="tour.title">From drawing to cutting in three screens</h2>
+        <p data-i18n="tour.sub">These screens are taken from the tool itself. The sample drawing is synthetic; the “Try the sample drawing” button gives you the same result.</p>
+      </header>
+
+      <div class="show">
+        <div class="show-text">
+          <p class="eyebrow" data-i18n="tour.readEyebrow">1 · Read</p>
+          <h3 data-i18n="tour.readTitle">It separates the parts for you</h3>
+          <p data-i18n="tour.readText">Lines, arcs, splines, polylines and blocks become closed contours; nested contours become holes. Identical parts are counted, and sheets are recognised by their layer name.</p>
+          <ul class="points">
+            <li><b data-i18n="tour.r1t">DXF and DWG</b><span data-i18n="tour.r1">DWG is read in the browser with LibreDWG; no conversion needed.</span></li>
+            <li><b data-i18n="tour.r2t">3D wireframe plates</b><span data-i18n="tour.r2">Plate parts are flattened; parts of a different thickness are flagged.</span></li>
+            <li><b data-i18n="tour.r3t">Easy corrections</b><span data-i18n="tour.r3">Each tile's menu makes it a part, a sheet or ignored.</span></li>
+          </ul>
+        </div>
+        <figure class="win lift">
+          <div class="win-in cut">
+            <div class="win-bar" aria-hidden="true"><i></i><i></i><i></i><span data-i18n="tour.winParts">nestio.talivio.com · Parts</span></div>
+            <picture><source data-i18n-srcset="img.partsDark" srcset="img/ekran-parcalar-en-dark.webp" media="(prefers-color-scheme: dark)"><img data-i18n-src="img.parts" src="img/ekran-parcalar-en.webp" width="1424" height="1024" loading="lazy" data-i18n-alt="tour.altParts" alt="Parts screen: 46 parts separated from the sample drawing and two 3000×1500 sheets; flange, frame, angle, triangle, washer, flat bar and wave-shaped tiles with their quantities."></picture>
+          </div>
+          <figcaption data-i18n="tour.caption">Real screen · synthetic sample drawing</figcaption>
+        </figure>
+      </div>
+
+      <div class="show flip">
+        <div class="show-text">
+          <p class="eyebrow" data-i18n="tour.setEyebrow">2 · Set up</p>
+          <h3 data-i18n="tour.setTitle">You choose the sheets, the gap and the time</h3>
+          <p data-i18n="tour.setText">Use sheets of different sizes together, cap their quantity or leave it open. Gap between parts and edge margin are set in millimetres; 0 is allowed.</p>
+          <ul class="points">
+            <li><b data-i18n="tour.s1t">Three search times</b><span data-i18n="tour.s1">Fast 15 s, Balanced 45 s, Thorough 2 min (per sheet).</span></li>
+            <li><b data-i18n="tour.s2t">Parts inside holes</b><span data-i18n="tour.s2">Small parts go into the openings of large ones, keeping the gap.</span></li>
+            <li><b data-i18n="tour.s3t">Emptying the last sheet</b><span data-i18n="tour.s3">The remnant stays at the end of the last sheet as one solid piece.</span></li>
+          </ul>
+        </div>
+        <figure class="win lift">
+          <div class="win-in cut">
+            <div class="win-bar" aria-hidden="true"><i></i><i></i><i></i><span data-i18n="tour.winSettings">nestio.talivio.com · Settings</span></div>
+            <picture><source data-i18n-srcset="img.settingsDark" srcset="img/ekran-ayarlar-en-dark.webp" media="(prefers-color-scheme: dark)"><img data-i18n-src="img.settings" src="img/ekran-ayarlar-en.webp" width="950" height="1074" loading="lazy" data-i18n-alt="tour.altSettings" alt="Settings screen: sheet table, 10 mm gap and edge margin, search time choice, options for parts inside holes and emptying the last sheet, Nest button."></picture>
+          </div>
+          <figcaption data-i18n="tour.caption">Real screen · synthetic sample drawing</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="band muted-band" aria-labelledby="akis-baslik">
+    <div class="wrap">
+      <header class="sec-head center"><h2 id="akis-baslik" data-i18n="flow.title">How it works</h2></header>
+      <ol class="flow">
+        <li><span class="n cut-sm">1</span><h3 data-i18n="flow.1t">Separates the parts</h3><p data-i18n="flow.1">Closed contours and holes are found; identical parts are counted.</p></li>
+        <li><span class="n cut-sm">2</span><h3 data-i18n="flow.2t">Uses the holes</h3><p data-i18n="flow.2">Small parts that fit into openings are found with an FFT scan and confirmed with exact geometry.</p></li>
+        <li><span class="n cut-sm">3</span><h3 data-i18n="flow.3t">Fills the sheets</h3><p data-i18n="flow.3">The open-source <a href="https://github.com/JeroenGar/sparrow">sparrow</a> algorithm packs parts at free rotation angles. One attempt runs per processor core and the best one wins.</p></li>
+        <li><span class="n cut-sm">4</span><h3 data-i18n="flow.4t">Checks and writes</h3><p data-i18n="flow.4">An independent check measures the edge margin and every gap; the result downloads as a layered DXF.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band dark-band" aria-labelledby="cikti-baslik">
+    <div class="wrap out">
+      <div class="out-text">
+        <p class="eyebrow" data-i18n="out.eyebrow">Output</p>
+        <h2 id="cikti-baslik" data-i18n="out.title">A cut-ready DXF, layer by layer</h2>
+        <p data-i18n="out.text">The layout downloads as a DXF your CAM software opens directly. Sheet outline, cut contours, part labels and the remnant are on separate layers.</p>
+        <ul class="layers">
+          <li><code>PLAKA</code><span data-i18n="out.l1">Sheet outline</span></li>
+          <li><code>KESIM</code><span data-i18n="out.l2">Part and hole contours</span></li>
+          <li><code>ETIKET</code><span data-i18n="out.l3">Part names</span></li>
+          <li><code>ARTIK</code><span data-i18n="out.l4">The single remnant at the end of the sheet</span></li>
+        </ul>
+      </div>
+      <figure class="win">
+        <div class="win-in cut paper">
+          <div class="win-bar" aria-hidden="true"><i></i><i></i><i></i><span data-i18n="out.win">Sheet 1 · 3,000 × 1,500 mm</span></div>
+          <img src="img/ekran-plaka.webp" width="1600" height="803" loading="lazy" data-i18n-alt="out.alt" alt="Nested sheet: 46 parts packed into the left side of a 3000×1500 mm sheet, small washers placed inside the holes of flanges and frames, one solid remnant on the right.">
+        </div>
+        <figcaption data-i18n="out.caption">Real output · synthetic sample drawing, “Fast” setting: 46/46 parts, 18 inside holes, check passed, 40 s</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="neden-baslik">
+    <div class="wrap">
+      <header class="sec-head center"><h2 id="neden-baslik" data-i18n="why.title">Why Nestio</h2></header>
+      <div class="cards">
+        <div class="lift"><div class="card cut"><svg class="ic lg" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg><h3 data-i18n="why.1t">Free, no limits</h3><p data-i18n="why.1">No payment, no sign-up, no cap on parts or sheets. No watermark either.</p></div></div>
+        <div class="lift"><div class="card cut"><svg class="ic lg" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="14" x="2" y="3"/><path d="M8 21h8M12 17v4"/></svg><h3 data-i18n="why.2t">Your drawing stays with you</h3><p data-i18n="why.2">Everything runs in the browser with WebAssembly. The page loads only its own files; there are no cookies or trackers.</p></div></div>
+        <div class="lift"><div class="card cut"><svg class="ic lg" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg><h3 data-i18n="why.3t">Open source</h3><p data-i18n="why.3">All the code is on GitHub under GPL-3.0. Run it on your own server or from the command line if you like.</p></div></div>
+        <div class="lift"><div class="card cut"><svg class="ic lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg><h3 data-i18n="why.4t">Nothing to install</h3><p data-i18n="why.4">A current browser is enough. On a multi-core computer the same job is tried in parallel.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band muted-band" id="sss" aria-labelledby="sss-baslik">
+    <div class="wrap narrow">
+      <header class="sec-head center"><h2 id="sss-baslik" data-i18n="faq.title">Frequently asked questions</h2></header>
+      <div class="faq">
+        <details class="cut-sm"><summary data-i18n="faq.1q">Is my drawing sent to a server?</summary><p data-i18n="faq.1a">No. The file is read and nested in your browser; after the page opens, the only network requests are the tool's own files (WASM, fonts). You can confirm this in the Network tab of your browser's developer tools.</p></details>
+        <details class="cut-sm"><summary data-i18n="faq.2q">Can it write DWG too?</summary><p data-i18n="faq.2a">DWG is read; the output is DXF. There is no open-source library yet that writes DWG in the browser, and every CAM program opens DXF.</p></details>
+        <details class="cut-sm"><summary data-i18n="faq.3q">Which sheet sizes can I use?</summary><p data-i18n="faq.3a">Add as many sizes as you need; give each a quantity or leave it unlimited. Rectangles on layers such as <code>PLATE</code>, <code>SHEET</code>, <code>PLAKA</code> or <code>LEVHA</code> are recognised as sheets automatically.</p></details>
+        <details class="cut-sm"><summary data-i18n="faq.4q">Does it mirror parts?</summary><p data-i18n="faq.4a">No. Parts rotate freely but are never mirrored, so directional parts and coated sheets stay safe.</p></details>
+        <details class="cut-sm"><summary data-i18n="faq.5q">How do I know the result is right?</summary><p data-i18n="faq.5a">Every result goes through a check that is independent of the nesting algorithm: is each part inside the edge margin, and is every gap at least the one you asked for? The result screen says “Check passed” or lists the problems found.</p></details>
+        <details class="cut-sm"><summary data-i18n="faq.6q">Why is it free?</summary><p data-i18n="faq.6a">Nestio is one of Talivio's open-source tools. There is no paid version, no limited tier and no advertising. Report bugs and ideas on GitHub.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band end">
+    <div class="wrap end-in">
+      <h2 data-i18n="end.title">Drop your drawing, get a cut-ready DXF</h2>
+      <div class="cta center"><button class="btn cut-sm" type="button" id="try2" data-i18n="hero.try">Try the sample drawing</button><button class="btn ghost cut-sm" type="button" id="pick2" data-i18n="hero.pick">Choose my drawing</button></div>
     </div>
   </section>
 </main>
 
-<footer>
-  <div class="wrap">
-    <span>Nestio, <a href="https://talivio.com">Talivio</a>'nun ücretsiz ve açık kaynak (GPL-3.0) aracıdır.</span>
-    <span>Hesap tarayıcınızda yapılır; dosyanız hiçbir sunucuya gönderilmez. Çerez ve izleme kodu yoktur.</span>
-    <a href="https://github.com/talivio/nestio">GitHub</a>
-    <a href="LISANSLAR.txt">Lisanslar</a>
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <div>
+      <a class="brand" href="./"><picture><source srcset="img/talivio-mark-white.svg" media="(prefers-color-scheme: dark)"><img src="img/talivio-mark.svg" alt="" width="24" height="24"></picture><b>Nestio</b></a>
+      <p data-i18n="foot.tagline">A free, open-source sheet nesting tool that runs in your browser.</p>
+      <p class="langs" data-i18n-aria="nav.lang" role="group" aria-label="Language"><a href="./" hreflang="en" data-lang="en">English</a><a href="?lang=tr" hreflang="tr" data-lang="tr">Türkçe</a><a href="?lang=et" hreflang="et" data-lang="et">Eesti</a></p>
+    </div>
+    <div>
+      <h4 data-i18n="foot.product">Product</h4>
+      <a href="https://github.com/talivio/nestio" data-i18n="foot.source">Source code</a>
+      <a href="https://talivio.com/blog/nestio-free-open-source-nesting-in-your-browser" data-i18n-href="foot.blogHref" data-i18n="foot.blog">Introduction</a>
+      <a href="LISANSLAR.txt" data-i18n="foot.licenses">Licences</a>
+    </div>
+    <div>
+      <h4 data-i18n="foot.legal">Legal</h4>
+      <a href="https://talivio.com/privacy" data-i18n="foot.privacy">Privacy</a>
+      <a href="https://talivio.com/terms" data-i18n="foot.terms">Terms of use</a>
+      <a href="https://talivio.com/impressum" data-i18n="foot.imprint">Imprint</a>
+    </div>
+  </div>
+  <div class="wrap foot-base">
+    <span data-i18n="foot.copy">© 2026 Talivio Technology OÜ · Nestio is GPL-3.0-or-later; the Talivio name and mark are outside the licence.</span>
+    <a href="https://talivio.com" data-i18n="foot.by">Made by Talivio</a>
   </div>
 </footer>
+<script>
+  // Tanıtım düğmeleri aracın kendi denetimlerini tetikler (tek iş akışı app.js'te).
+  for (const id of ['try', 'try2']) document.getElementById(id).addEventListener('click', () => document.getElementById('sample').click());
+  for (const id of ['pick', 'pick2']) document.getElementById(id).addEventListener('click', () => document.getElementById('file').click());
+</script>
+<script type="module" src="js/i18n.js"></script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>

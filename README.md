@@ -86,7 +86,8 @@ crates/core   Rust çekirdeği: çizim modeli, DXF okuma, eğri düzleştirme, k
               denetim (verify), DXF yazma
 crates/wasm   Tarayıcı bağlaması (wasm-bindgen)
 crates/cli    Komut satırı
-web/          Arayüz: index.html, style.css, js/app.js (arayüz), js/coord.js
+web/          Arayüz: index.html, style.css, js/app.js (arayüz), js/i18n.js
+              (dil: EN varsayılan, ?lang=tr / ?lang=et), js/coord.js
               (yönetici işçi), js/pool.js (çözücü işçileri), js/dwg.js (DWG okuyucu)
 examples/     Sentetik örnek çizim ve üreticisi
 ```
