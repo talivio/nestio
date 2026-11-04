@@ -70,3 +70,24 @@ fn dizer_ve_denetimden_gecer() {
         assert!(dxf.len() > 1000);
     }
 }
+
+fn dxf_dikdortgenler(rects: &[(f64, f64)]) -> String {
+    let mut s = String::from("0\nSECTION\n2\nENTITIES\n");
+    let mut x = 0.0;
+    for &(w, h) in rects {
+        s += "0\nLWPOLYLINE\n8\nPARCA\n90\n4\n70\n1\n";
+        for (px, py) in [(x, 0.0), (x + w, 0.0), (x + w, h), (x, h)] {
+            s += &format!("10\n{px}\n20\n{py}\n");
+        }
+        x += w + 100.0;
+    }
+    s + "0\nENDSEC\n0\nEOF\n"
+}
+
+#[test]
+fn yalniz_dikdortgenlerde_plaka_sanilmaz() {
+    let d = dxf_in::read(dxf_dikdortgenler(&[(800.0, 500.0), (800.0, 500.0), (700.0, 400.0), (1200.0, 300.0)]).as_bytes()).unwrap();
+    let a = parts::analyze(&d, &AnalyzeOptions::default());
+    assert_eq!(a.parts.len(), 4);
+    assert!(a.parts.iter().all(|p| p.role == Role::Part && p.name != "Plaka"));
+}

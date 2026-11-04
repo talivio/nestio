@@ -90,6 +90,9 @@ pub struct AnalyzeOptions {
     /// Okunmayacak katmanlar.
     #[serde(default)]
     pub ignore_layers: Vec<String>,
+    /// Doğruysa büyük dikdörtgenler kendiliğinden plaka sayılmaz.
+    #[serde(default)]
+    pub no_auto_plates: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
@@ -513,12 +516,14 @@ pub fn analyze(d: &Drawing, opts: &AnalyzeOptions) -> Analysis {
         }
     }
     // Her parçadan en az iki kat büyük dikdörtgenler plaka sayılır (plakalar çizimde
-    // parçaların yanına çizilmişse).
+    // parçaların yanına çizilmişse). Yalnız belirgin küçük bir parça varsa çalışır;
+    // çizimde plaka zaten işaretliyse ya da kapatılmışsa hiç çalışmaz.
+    let has_plate = raws.iter().any(|r| r.role == Role::Plate);
     let rect_area = |r: &Raw| if r.role == Role::Part && is_rect(&r.poly) { r.poly.unsigned_area() } else { 0.0 };
     let big = raws.iter().map(rect_area).fold(0.0, f64::max);
-    if big > 0.0 {
+    if big > 0.0 && !has_plate && !opts.no_auto_plates {
         let others = raws.iter().filter(|r| r.role == Role::Part && rect_area(r) < big * 0.5).map(|r| r.poly.unsigned_area()).fold(0.0, f64::max);
-        if big >= 2.0 * others && raws.iter().filter(|r| r.role == Role::Part).count() > 1 {
+        if others > 0.0 && big >= 2.0 * others && raws.iter().filter(|r| r.role == Role::Part).count() > 1 {
             let mut n = 0;
             for r in raws.iter_mut() {
                 if rect_area(r) >= big * 0.5 && rect_area(r) >= 2.0 * others {
