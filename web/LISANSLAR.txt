@@ -1,0 +1,161 @@
+Nestio — üçüncü taraf bileşenler ve lisansları
+==============================================
+
+Nestio, GNU Genel Kamu Lisansı sürüm 3 ya da (seçiminize göre) daha sonraki bir
+sürümüyle (GPL-3.0-or-later) dağıtılır. Tam metin: LICENSE.
+
+Talivio adı ve logosu Talivio Technology OÜ'nün ticari markasıdır; GPL kapsamında
+değildir. Kodu çatallayıp yayımlayanlar kendi adlarını ve logolarını kullanmalıdır.
+
+Doğrudan kullanılanlar
+----------------------
+- sparrow (Jeroen Gardeyn, KU Leuven) — MIT — https://github.com/JeroenGar/sparrow
+  Şerit doldurma (nesting) algoritması. Değiştirilmeden kullanılır.
+- jagua-rs (Jeroen Gardeyn) — MPL-2.0 — https://github.com/JeroenGar/jagua-rs
+  Çakışma denetimi motoru. Değiştirilmeden kullanılır; kaynak kodu crates.io'dadır.
+- LibreDWG (Free Software Foundation) — GPL-3.0-or-later — https://www.gnu.org/software/libredwg/
+  ve libredwg-web (MLight Lee) — GPL-3.0 — https://github.com/mlightcad/libredwg-web
+  DWG okuma. web/vendor/libredwg altındaki derlenmiş dosyalar @mlightcad/libredwg-web 0.8.4
+  npm paketinden değiştirilmeden alınmıştır; kaynak kodu yukarıdaki adreslerdedir.
+- dxf (ixmilia) — MIT — DXF okuma/yazma.
+- geo, geo-types, i_overlay — MIT OR Apache-2.0 — geometri işlemleri.
+- rustfft — MIT OR Apache-2.0 — delik taramasında FFT.
+- Inter, Outfit, JetBrains Mono yazı tipleri — SIL Open Font License 1.1 (web/fonts/OFL.txt).
+
+Rust bağımlılıklarının tam listesi (WASM derlemesi, `cargo metadata` ile çıkarıldı)
+-------------------------------------------------------------------------------
+anstream 1.0.0 — MIT OR Apache-2.0
+anstyle 1.0.14 — MIT OR Apache-2.0
+anstyle-parse 1.0.0 — MIT OR Apache-2.0
+anstyle-query 1.1.5 — MIT OR Apache-2.0
+anyhow 1.0.104 — MIT OR Apache-2.0
+approx 0.5.1 — Apache-2.0
+autocfg 1.5.1 — Apache-2.0 OR MIT
+bitflags 1.3.2 — MIT/Apache-2.0
+bumpalo 3.20.3 — MIT OR Apache-2.0
+bytemuck 1.25.2 — Zlib OR Apache-2.0 OR MIT
+byteorder 1.5.0 — Unlicense OR MIT
+byteorder-lite 0.1.0 — Unlicense OR MIT
+cfg-if 1.0.5 — MIT OR Apache-2.0
+chacha20 0.10.2 — MIT OR Apache-2.0
+chrono 0.4.45 — MIT OR Apache-2.0
+clap 4.6.7 — MIT OR Apache-2.0
+clap_builder 4.6.7 — MIT OR Apache-2.0
+clap_derive 4.6.7 — MIT OR Apache-2.0
+clap_lex 1.1.1 — MIT OR Apache-2.0
+colorchoice 1.0.5 — MIT OR Apache-2.0
+crossbeam-deque 0.8.8 — MIT OR Apache-2.0
+crossbeam-epoch 0.9.21 — MIT OR Apache-2.0
+crossbeam-utils 0.8.23 — MIT OR Apache-2.0
+defmt 1.2.0 — MIT OR Apache-2.0
+defmt-macros 1.2.0 — MIT OR Apache-2.0
+defmt-parser 1.1.0 — MIT OR Apache-2.0
+document-features 0.2.12 — MIT OR Apache-2.0
+dtoa 1.0.11 — MIT OR Apache-2.0
+dxf 0.6.2 — MIT
+earcut 0.4.5 — ISC
+either 1.19.0 — MIT OR Apache-2.0
+encoding_rs 0.8.44 — (Apache-2.0 OR MIT) AND BSD-3-Clause
+enum_primitive 0.1.1 — MIT
+fern 0.7.1 — MIT
+float-cmp 0.10.0 — MIT
+float_next_after 2.0.0 — MIT
+futures-core 0.3.34 — MIT OR Apache-2.0
+futures-task 0.3.34 — MIT OR Apache-2.0
+futures-util 0.3.34 — MIT OR Apache-2.0
+geo 0.33.1 — MIT OR Apache-2.0
+geo-types 0.7.20 — MIT OR Apache-2.0
+geographiclib-rs 0.2.7 — MIT
+getrandom 0.4.3 — MIT OR Apache-2.0
+hash32 0.3.1 — MIT OR Apache-2.0
+heapless 0.8.0 — MIT OR Apache-2.0
+heck 0.5.0 — MIT OR Apache-2.0
+i_float 1.16.0 — MIT
+i_key_sort 0.10.3 — MIT
+i_overlay 4.5.2 — MIT OR Apache-2.0
+i_shape 1.18.0 — MIT
+i_tree 0.18.0 — MIT
+image 0.25.10 — MIT OR Apache-2.0
+is_terminal_polyfill 1.70.2 — MIT OR Apache-2.0
+itertools 0.14.0 — MIT OR Apache-2.0
+itertools 0.15.0 — MIT OR Apache-2.0
+itoa 1.0.18 — MIT OR Apache-2.0
+jagua-rs 1.1.0 — MPL-2.0
+jiff 0.2.39 — Unlicense OR MIT
+jiff-core 0.1.2 — Unlicense OR MIT
+jiff-static 0.2.39 — Unlicense OR MIT
+jiff-tzdb 0.1.9 — Unlicense OR MIT
+jiff-tzdb-platform 0.1.3 — Unlicense OR MIT
+js-sys 0.3.107 — MIT OR Apache-2.0
+libc 0.2.191 — MIT OR Apache-2.0
+libm 0.2.16 — MIT
+litrs 1.0.1 — MIT OR Apache-2.0
+log 0.4.35 — MIT OR Apache-2.0
+matrixmultiply 0.3.11 — MIT/Apache-2.0
+memchr 2.8.3 — Unlicense OR MIT
+moxcms 0.8.1 — BSD-3-Clause OR Apache-2.0
+multiversion_no_op 1.0.0 — Apache-2.0 OR MIT
+ndarray 0.17.2 — MIT OR Apache-2.0
+num 0.4.3 — MIT OR Apache-2.0
+num-bigint 0.4.8 — MIT OR Apache-2.0
+num-complex 0.4.6 — MIT OR Apache-2.0
+num-integer 0.1.47 — MIT OR Apache-2.0
+num-iter 0.1.46 — MIT OR Apache-2.0
+num-rational 0.4.2 — MIT OR Apache-2.0
+num-traits 0.1.43 — MIT/Apache-2.0
+num-traits 0.2.19 — MIT OR Apache-2.0
+num_cpus 1.17.0 — MIT OR Apache-2.0
+numfmt 1.2.0 — MIT
+ordered-float 5.5.1 — MIT
+pin-project-lite 0.2.17 — Apache-2.0 OR MIT
+primal-check 0.3.4 — MIT OR Apache-2.0
+proc-macro2 1.0.107 — MIT OR Apache-2.0
+pxfm 0.1.30 — BSD-3-Clause OR Apache-2.0
+quote 1.0.47 — MIT OR Apache-2.0
+rand 0.10.3 — MIT OR Apache-2.0
+rand_core 0.10.1 — MIT OR Apache-2.0
+rand_distr 0.6.0 — MIT OR Apache-2.0
+rand_pcg 0.10.2 — MIT OR Apache-2.0
+rawpointer 0.2.1 — MIT/Apache-2.0
+rayon 1.12.0 — MIT OR Apache-2.0
+rayon-core 1.13.0 — MIT OR Apache-2.0
+robust 1.2.0 — MIT OR Apache-2.0
+rstar 0.12.2 — MIT OR Apache-2.0
+rustfft 6.4.1 — MIT OR Apache-2.0
+rustversion 1.0.23 — MIT OR Apache-2.0
+scopeguard 1.2.0 — MIT OR Apache-2.0
+serde 1.0.229 — MIT OR Apache-2.0
+serde_core 1.0.229 — MIT OR Apache-2.0
+serde_derive 1.0.229 — MIT OR Apache-2.0
+serde_json 1.0.154 — MIT OR Apache-2.0
+sif-itree 0.4.1 — MIT OR Apache-2.0
+slab 0.4.12 — MIT
+slotmap 1.1.1 — Zlib
+smallvec 1.16.4 — MIT OR Apache-2.0
+sparrow 0.3.0 — MIT
+stable_deref_trait 1.2.1 — MIT OR Apache-2.0
+strength_reduce 0.2.4 — MIT OR Apache-2.0
+strsim 0.11.1 — MIT
+svg 0.18.0 — Apache-2.0 OR MIT
+syn 2.0.119 — MIT OR Apache-2.0
+syn 3.0.9 — MIT OR Apache-2.0
+tap 1.0.1 — MIT
+test-case 3.4.1 — MIT
+test-case-core 3.4.1 — MIT
+test-case-macros 3.4.1 — MIT
+thiserror 2.0.21 — MIT OR Apache-2.0
+thiserror-impl 2.0.21 — MIT OR Apache-2.0
+transpose 0.2.3 — MIT OR Apache-2.0
+unicode-ident 1.0.27 — (MIT OR Apache-2.0) AND Unicode-3.0
+utf8parse 0.2.2 — Apache-2.0 OR MIT
+uuid 1.29.0 — Apache-2.0 OR MIT
+version_check 0.9.5 — MIT/Apache-2.0
+wasm-bindgen 0.2.130 — MIT OR Apache-2.0
+wasm-bindgen-futures 0.4.80 — MIT OR Apache-2.0
+wasm-bindgen-macro 0.2.130 — MIT OR Apache-2.0
+wasm-bindgen-macro-support 0.2.130 — MIT OR Apache-2.0
+wasm-bindgen-shared 0.2.130 — MIT OR Apache-2.0
+web-time 1.1.0 — MIT OR Apache-2.0
+xml-rs 0.8.29 — MIT
+xmltree 0.9.0 — MIT
+zmij 1.0.23 — MIT

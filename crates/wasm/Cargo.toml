@@ -1,0 +1,16 @@
+[package]
+name = "nestio-wasm"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+nestio-core = { path = "../core" }
+serde_json = { workspace = true }
+wasm-bindgen = "=0.2.130"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+uuid = { version = "1", features = ["js"] }

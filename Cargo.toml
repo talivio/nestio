@@ -1,0 +1,14 @@
+[workspace]
+resolver = "3"
+members = ["crates/core", "crates/cli", "crates/wasm"]
+
+[workspace.dependencies]
+sparrow = { git = "https://github.com/JeroenGar/sparrow.git", rev = "6067f007f02758b1a477be51b5a03a2f72db298b", features = ["only_final_svg"] }
+jagua-rs = { version = "=1.1.0", features = ["spp"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
