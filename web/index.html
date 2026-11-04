@@ -11,6 +11,11 @@
     try { s = localStorage.getItem('nestio-lang'); } catch (e) {}
     var l = ['en', 'tr', 'et'].indexOf(q) >= 0 ? q : (['tr', 'et'].indexOf(s) >= 0 && !q ? s : 'en');
     document.documentElement.lang = l;
+    // Tema: 'light' | 'dark' seçilmişse o; yoksa sistem tercihi (ui.js değişikliği izler).
+    var t = null;
+    try { t = localStorage.getItem('theme'); } catch (e) {}
+    var dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
     if (l !== 'en') {
       document.documentElement.classList.add('i18n-pending');
       setTimeout(function () { document.documentElement.classList.remove('i18n-pending'); }, 1500);
@@ -40,7 +45,7 @@
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="style.css?v=20261104b">
+<link rel="stylesheet" href="style.css?v=20261104c">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Nestio","applicationCategory":"DesignApplication","operatingSystem":"Web browser","url":"https://nestio.talivio.com/","description":"Free, open-source tool that nests the parts of DXF and DWG drawings onto sheets with the least scrap. Runs in the browser.","inLanguage":["en","tr","et"],"license":"https://www.gnu.org/licenses/gpl-3.0.html","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"publisher":{"@type":"Organization","name":"Talivio Technology OÜ","url":"https://talivio.com"}}
 </script>
@@ -49,12 +54,27 @@
 <a class="skip" href="#arac" data-i18n="nav.skip">Skip to the tool</a>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="./" data-i18n-aria="nav.home" aria-label="Nestio, home"><picture><source srcset="img/talivio-mark-white.svg" media="(prefers-color-scheme: dark)"><img src="img/talivio-mark.svg" alt="" width="28" height="28"></picture><b>Nestio</b></a>
+    <a class="brand" href="./" data-i18n-aria="nav.home" aria-label="Nestio, home"><img class="th-light" src="img/talivio-mark.svg" alt="" width="28" height="28"><img class="th-dark" src="img/talivio-mark-white.svg" alt="" width="28" height="28"><b>Nestio</b></a>
     <nav data-i18n-aria="nav.label" aria-label="Main menu">
       <a href="#nasil" data-i18n="nav.how">How it works</a>
       <a href="#sss" data-i18n="nav.faq">FAQ</a>
-      <span class="langs" data-i18n-aria="nav.lang" role="group" aria-label="Language"><a href="./" hreflang="en" data-lang="en">EN</a><a href="?lang=tr" hreflang="tr" data-lang="tr">TR</a><a href="?lang=et" hreflang="et" data-lang="et">ET</a></span>
-      <a class="btn ghost small cut-sm" href="https://github.com/talivio/nestio"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>GitHub</a>
+      <div class="dd" data-dd>
+        <button type="button" class="dd-btn cut-sm" aria-expanded="false" aria-controls="lang-menu"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg><span class="sr-only"><span data-i18n="nav.lang">Language</span>:</span><span class="dd-cur" data-dd-cur>English</span><svg class="ic sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <ul class="dd-menu" id="lang-menu" hidden>
+          <li><a href="./" hreflang="en" lang="en" data-lang="en"><span>English</span><code>EN</code><svg class="ic sm ok-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></a></li>
+          <li><a href="?lang=tr" hreflang="tr" lang="tr" data-lang="tr"><span>Türkçe</span><code>TR</code><svg class="ic sm ok-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></a></li>
+          <li><a href="?lang=et" hreflang="et" lang="et" data-lang="et"><span>Eesti</span><code>ET</code><svg class="ic sm ok-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></a></li>
+        </ul>
+      </div>
+      <div class="dd" data-dd>
+        <button type="button" class="dd-btn cut-sm" aria-expanded="false" aria-controls="theme-menu"><span class="sr-only"><span data-i18n="theme.label">Theme</span>:</span><span class="dd-cur" data-dd-cur></span><svg class="ic sm chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="dd-menu" id="theme-menu" hidden>
+          <button type="button" data-theme-set="light" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-14.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg><span data-i18n="theme.light">Light</span><svg class="ic sm ok-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button>
+          <button type="button" data-theme-set="dark" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg><span data-i18n="theme.dark">Dark</span><svg class="ic sm ok-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button>
+          <button type="button" data-theme-set="system" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="14" x="2" y="3"/><path d="M8 21h8M12 17v4"/></svg><span data-i18n="theme.system">System</span><svg class="ic sm ok-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button>
+        </div>
+      </div>
+      <a class="btn ghost small cut-sm" href="https://github.com/talivio/nestio" aria-label="GitHub"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg><span class="gh-label">GitHub</span></a>
     </nav>
   </div>
 </header>
@@ -177,7 +197,7 @@
         <figure class="win lift">
           <div class="win-in cut">
             <div class="win-bar" aria-hidden="true"><i></i><i></i><i></i><span data-i18n="tour.winParts">nestio.talivio.com · Parts</span></div>
-            <picture><source data-i18n-srcset="img.partsDark" srcset="img/ekran-parcalar-en-dark.webp" media="(prefers-color-scheme: dark)"><img data-i18n-src="img.parts" src="img/ekran-parcalar-en.webp" width="1424" height="1024" loading="lazy" data-i18n-alt="tour.altParts" alt="Parts screen: 46 parts separated from the sample drawing and two 3000×1500 sheets; flange, frame, angle, triangle, washer, flat bar and wave-shaped tiles with their quantities."></picture>
+            <img class="th-light" data-i18n-src="img.parts" src="img/ekran-parcalar-en.webp" width="1424" height="1024" loading="lazy" data-i18n-alt="tour.altParts" alt="Parts screen: 46 parts separated from the sample drawing and two 3000×1500 sheets; flange, frame, angle, triangle, washer, flat bar and wave-shaped tiles with their quantities."><img class="th-dark" data-i18n-src="img.partsDark" src="img/ekran-parcalar-en-dark.webp" width="1424" height="1024" loading="lazy" data-i18n-alt="tour.altParts" alt="Parts screen: 46 parts separated from the sample drawing and two 3000×1500 sheets; flange, frame, angle, triangle, washer, flat bar and wave-shaped tiles with their quantities.">
           </div>
           <figcaption data-i18n="tour.caption">Real screen · synthetic sample drawing</figcaption>
         </figure>
@@ -197,7 +217,7 @@
         <figure class="win lift">
           <div class="win-in cut">
             <div class="win-bar" aria-hidden="true"><i></i><i></i><i></i><span data-i18n="tour.winSettings">nestio.talivio.com · Settings</span></div>
-            <picture><source data-i18n-srcset="img.settingsDark" srcset="img/ekran-ayarlar-en-dark.webp" media="(prefers-color-scheme: dark)"><img data-i18n-src="img.settings" src="img/ekran-ayarlar-en.webp" width="950" height="1074" loading="lazy" data-i18n-alt="tour.altSettings" alt="Settings screen: sheet table, 10 mm gap and edge margin, search time choice, options for parts inside holes and emptying the last sheet, Nest button."></picture>
+            <img class="th-light" data-i18n-src="img.settings" src="img/ekran-ayarlar-en.webp" width="950" height="1074" loading="lazy" data-i18n-alt="tour.altSettings" alt="Settings screen: sheet table, 10 mm gap and edge margin, search time choice, options for parts inside holes and emptying the last sheet, Nest button."><img class="th-dark" data-i18n-src="img.settingsDark" src="img/ekran-ayarlar-en-dark.webp" width="950" height="1074" loading="lazy" data-i18n-alt="tour.altSettings" alt="Settings screen: sheet table, 10 mm gap and edge margin, search time choice, options for parts inside holes and emptying the last sheet, Nest button.">
           </div>
           <figcaption data-i18n="tour.caption">Real screen · synthetic sample drawing</figcaption>
         </figure>
@@ -277,9 +297,8 @@
 <footer class="foot">
   <div class="wrap foot-grid">
     <div>
-      <a class="brand" href="./"><picture><source srcset="img/talivio-mark-white.svg" media="(prefers-color-scheme: dark)"><img src="img/talivio-mark.svg" alt="" width="24" height="24"></picture><b>Nestio</b></a>
+      <a class="brand" href="./"><img class="th-light" src="img/talivio-mark.svg" alt="" width="24" height="24"><img class="th-dark" src="img/talivio-mark-white.svg" alt="" width="24" height="24"><b>Nestio</b></a>
       <p data-i18n="foot.tagline">A free, open-source sheet nesting tool that runs in your browser.</p>
-      <p class="langs" data-i18n-aria="nav.lang" role="group" aria-label="Language"><a href="./" hreflang="en" data-lang="en">English</a><a href="?lang=tr" hreflang="tr" data-lang="tr">Türkçe</a><a href="?lang=et" hreflang="et" data-lang="et">Eesti</a></p>
     </div>
     <div>
       <h4 data-i18n="foot.product">Product</h4>
@@ -307,7 +326,8 @@
 <!-- ?v= sürüm etiketi: Cloudflare Accept-Encoding varyantlarını adres temizliğinde
      bırakabiliyor (2026-11-04: eski nestio_wasm.js yeni .wasm ile buluştu, araç açılmadı).
      js/ veya pkg/ değişince BU etiketi ve js/*.js içindeki aynı etiketi birlikte artır. -->
-<script type="module" src="js/i18n.js?v=20261104b"></script>
-<script type="module" src="js/app.js?v=20261104b"></script>
+<script type="module" src="js/i18n.js?v=20261104c"></script>
+<script type="module" src="js/ui.js?v=20261104c"></script>
+<script type="module" src="js/app.js?v=20261104c"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 // Nestio arayüzü. Bütün hesap Web Worker'larda (WASM) yapılır; ağa yalnız sayfanın
 // kendi dosyaları için istek gider, çizim hiçbir yere gönderilmez.
-import { t, tm, numLocale } from './i18n.js?v=20261104b';
+import { t, tm, numLocale } from './i18n.js?v=20261104c';
 
 const $ = (s) => document.querySelector(s);
 const fmt = (n, d = 0) => Number(n).toLocaleString(numLocale, { maximumFractionDigits: d, minimumFractionDigits: d });
@@ -27,7 +27,7 @@ let coord = null;
 let seq = 0;
 const pending = new Map();
 function startCoord() {
-  coord = new Worker(new URL('./coord.js?v=20261104b', import.meta.url), { type: 'module' });
+  coord = new Worker(new URL('./coord.js?v=20261104c', import.meta.url), { type: 'module' });
   coord.onmessage = (ev) => {
     const m = ev.data;
     if (m.type === 'progress') return onProgress(JSON.parse(m.ev));
@@ -56,7 +56,7 @@ function status(msg, bad) {
 
 // ── dosya ────────────────────────────────────────────────────────────────────
 async function readDwg(bytes) {
-  const w = new Worker(new URL('./dwg.js?v=20261104b', import.meta.url), { type: 'module' });
+  const w = new Worker(new URL('./dwg.js?v=20261104c', import.meta.url), { type: 'module' });
   try {
     return await new Promise((resolve, reject) => {
       w.onmessage = (ev) => (ev.data.ok ? resolve(ev.data.drawing) : reject(new Error(ev.data.error)));
@@ -408,6 +408,12 @@ $('#dl').onclick = async () => {
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 };
+// Tema değişince tuval çizimleri yeni renklerle yeniden çizilir (ui.js).
+window.addEventListener('nestio-theme', () => {
+  if (S.analysis && !$('#setup').classList.contains('hidden')) renderSetup();
+  if (S.out?.plates && !$('#result').classList.contains('hidden')) renderPlatesView(S.out.plates);
+});
+
 $('#again').onclick = () => $('#setup').scrollIntoView({ behavior: 'smooth' });
 
 addEventListener('resize', () => {

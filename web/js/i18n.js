@@ -69,6 +69,7 @@ const D = {
   tr: {
     'meta.title': 'Nestio — ücretsiz plaka dizme (nesting), tarayıcıda',
     'meta.description': 'DXF ya da DWG çiziminizdeki parçaları plakaya en az fireyle dizen ücretsiz, açık kaynak araç. Kurulum ve üyelik yok; hesap tarayıcınızda yapılır, çiziminiz bilgisayarınızdan çıkmaz.',
+    'theme.label': 'Tema', 'theme.light': 'Açık', 'theme.dark': 'Koyu', 'theme.system': 'Sistem',
     'nav.skip': 'Araca geç', 'nav.home': 'Nestio, ana sayfa', 'nav.label': 'Ana menü', 'nav.how': 'Nasıl çalışır', 'nav.faq': 'SSS', 'nav.lang': 'Dil',
     'hero.eyebrow': 'Ücretsiz · Açık kaynak · Kurulumsuz',
     'hero.title': 'Parçaları plakaya en az fireyle dizin',
@@ -170,6 +171,7 @@ const D = {
   et: {
     'meta.title': 'Nestio — tasuta lehtmaterjali paigutus brauseris',
     'meta.description': 'Tasuta avatud lähtekoodiga tööriist, mis paigutab DXF- või DWG-joonise detailid lehtedele võimalikult väikese jäägiga. Ei vaja paigaldust ega kontot: kõik arvutused tehakse brauseris ja joonis ei lahku sinu arvutist.',
+    'theme.label': 'Teema', 'theme.light': 'Hele', 'theme.dark': 'Tume', 'theme.system': 'Süsteem',
     'nav.skip': 'Mine tööriista juurde', 'nav.home': 'Nestio, avaleht', 'nav.label': 'Peamenüü', 'nav.how': 'Kuidas see töötab', 'nav.faq': 'KKK', 'nav.lang': 'Keel',
     'hero.eyebrow': 'Tasuta · Avatud lähtekood · Paigaldust pole vaja',
     'hero.title': 'Paiguta detailid lehtedele võimalikult väikese jäägiga',
