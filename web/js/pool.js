@@ -1,5 +1,5 @@
 // Havuz işçisi: tek bir şerit doldurma işini (sparrow) çözer.
-import init, { solve_strip } from '../pkg/nestio_wasm.js?v=20261104c';
+import init, { solve_strip } from '../pkg/nestio_wasm.js?v=20261104d';
 
 let panic = null;
 self.__nestioPanic = (msg) => { panic = msg; };
