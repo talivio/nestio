@@ -182,9 +182,10 @@ pub fn flatten_part(paths: &[&Path]) -> Option<Flat> {
     };
     let n = cands.into_iter().filter(|v| len(*v) > 0.5).min_by(|a, b| kalin(*a).total_cmp(&kalin(*b)))?;
     // Normalin işareti adaylardan keyfi gelir (öz vektör, çizgi yönü); ters işaret parçayı
-    // alttan okur, yani AYNALAR. Panel, normaline en yakın standart görünüşten bakıldığı gibi
-    // okunur: üst (+Z'den), ön (−Y'den), sağ (+X'ten). (a, b, n) sağ el, bakan +n tarafında.
-    let k = (0..3).max_by(|&i, &j| n[i].abs().total_cmp(&n[j].abs())).unwrap();
+    // alttan okur, yani AYNALAR (levha takla atmış olur). Panel her zaman üstten (+Z'den)
+    // bakıldığı gibi okunur; yalnız tam dik panelde (üstten çizgi görünür) ön (−Y'den), o da
+    // olmazsa sağ (+X'ten) görünüşe düşülür. (a, b, n) sağ el, bakan +n tarafında.
+    let k = if n[2].abs() > 1e-3 { 2 } else if n[1].abs() > 1e-3 { 1 } else { 0 };
     let n = if [1.0, -1.0, 1.0][k] * n[k] < 0.0 { [-n[0], -n[1], -n[2]] } else { n };
     let a =unit(if n[2].abs() < 0.9 { cross(n, [0.0, 0.0, 1.0]) } else { cross(n, [1.0, 0.0, 0.0]) });
     let b = cross(n, a);

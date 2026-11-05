@@ -100,6 +100,11 @@ fn l_braket() -> Vec<P2> {
     vec![[0.0, 0.0], [300.0, 0.0], [300.0, 60.0], [60.0, 60.0], [60.0, 250.0], [0.0, 250.0]]
 }
 
+/// Büyük kiral parça: 2400 × 1200 levha, bir köşesi pahlı, bir kenarında cep.
+fn buyuk() -> Vec<P2> {
+    vec![[0.0, 0.0], [2400.0, 0.0], [2400.0, 900.0], [2100.0, 1200.0], [700.0, 1200.0], [700.0, 1000.0], [400.0, 1000.0], [400.0, 1200.0], [0.0, 1200.0]]
+}
+
 fn ucgen() -> Vec<P2> {
     vec![[0.0, 0.0], [220.0, 0.0], [0.0, 180.0]]
 }
@@ -209,11 +214,14 @@ fn iki_boyutlu_ocs_ve_negatif_olcek() {
         ("blok OCS -Z", drawing(vec![insert("B", [0.0, 0.0, 0.0], [1.0, 1.0, 1.0], 0.0, [0.0, 0.0, -1.0])], vec![("B", vec![lw(&l_braket(), [0.0, 0.0, 1.0])])]), neg(&l_braket())),
         // iki ayna birbirini götürür
         ("blok OCS -Z ve x ölçeği -1", drawing(vec![insert("B", [0.0, 0.0, 0.0], [-1.0, 1.0, 1.0], 0.0, [0.0, 0.0, -1.0])], vec![("B", vec![lw(&l_braket(), [0.0, 0.0, 1.0])])]), l_braket()),
+        ("büyük parça", drawing(vec![lw(&buyuk(), [0.0, 0.0, 1.0])], vec![]), buyuk()),
+        ("büyük parça OCS -Z", drawing(vec![lw(&buyuk(), [0.0, 0.0, -1.0])], vec![]), neg(&buyuk())),
     ];
     for (what, d, expect) in cases {
         let p = only_part(&d);
         assert_rigid(&format!("2B {what} / okuma"), &poly(&[expect]), &p.shape.poly());
-        nest_and_compare(&format!("2B {what}"), vec![NestPart { id: p.id, name: p.name, shape: p.shape, qty: 3 }], (1500.0, 1000.0));
+        let qty = if p.area > 1e6 { 1 } else { 3 };
+        nest_and_compare(&format!("2B {what}"), vec![NestPart { id: p.id, name: p.name, shape: p.shape, qty }], (3000.0, 1500.0));
     }
 }
 
@@ -259,12 +267,12 @@ fn panel(outline: &[P2], thick: f64, m: &[[f64; 3]; 3], t: V3, reverse: bool) ->
     segs.into_iter().map(|(a, b)| ent(Geom::Line { a, b })).collect()
 }
 
-/// Standart görünüşler (AutoCAD): üst (+Z'den), ön (−Y'den), sağ (+X'ten). Panelin gerçek
-/// biçimi, normaline en yakın eksenin görünüşünden bakıldığı gibi: panelin kendi +Z'si
-/// bakana dönükse çizildiği gibi, değilse aynası.
+/// Panelin beklenen biçimi: üstten (+Z'den) bakıldığı gibi; tam dik panelde ön (−Y'den),
+/// o da değilse sağ (+X'ten) görünüş. Panelin kendi +Z'si bakana dönükse çizildiği gibi,
+/// değilse aynası (levha takla atmaz, kullanıcının gördüğü yüz okunur).
 fn standard_view(outline: &[P2], m: &[[f64; 3]; 3]) -> Vec<P2> {
     let nrm = mul(m, [0.0, 0.0, 1.0]);
-    let k = (0..3).max_by(|&i, &j| nrm[i].abs().total_cmp(&nrm[j].abs())).unwrap();
+    let k = if nrm[2].abs() > 1e-3 { 2 } else if nrm[1].abs() > 1e-3 { 1 } else { 0 };
     let toward = [1.0, -1.0, 1.0][k] * nrm[k] > 0.0;
     outline.iter().map(|p| if toward { *p } else { [-p[0], p[1]] }).collect()
 }
@@ -285,9 +293,13 @@ fn uc_boyutlu_panel_ustten_gorunus_gibi_okunur() {
         ("dik, sağ görünüş ters", comp(rot(2, -90.0), rot(0, 90.0))),
         ("hafif eğik", comp(rot(1, 8.0), rot(0, 5.0))),
         ("hafif eğik ters", comp(rot(1, 8.0), rot(0, 185.0))),
+        // normalin z bileşeni küçük ama var: yine üstten okunur
+        ("çok eğik (70°)", rot(0, 70.0)),
+        ("çok eğik ters (110°)", rot(0, 110.0)),
+        ("çok eğik, z'de 60°", comp(rot(2, 60.0), rot(0, -75.0))),
     ];
     for (what, m) in cases {
-        for (shape_name, outline) in [("L", l_braket()), ("üçgen", ucgen())] {
+        for (shape_name, outline) in [("L", l_braket()), ("üçgen", ucgen()), ("büyük", buyuk())] {
             let expect = poly(&[standard_view(&outline, &m)]);
             for reverse in [false, true] {
                 let d = drawing(panel(&outline, 18.0, &m, [1000.0, -400.0, 250.0], reverse), vec![]);
@@ -301,7 +313,17 @@ fn uc_boyutlu_panel_ustten_gorunus_gibi_okunur() {
             }
         }
     }
-    // dizme + DXF: alttan okunan panel
-    let p = only_part(&drawing(panel(&l_braket(), 18.0, &rot(0, 180.0), [0.0; 3], true), vec![]));
-    nest_and_compare("3B ters panel", vec![NestPart { id: p.id, name: p.name, shape: p.shape, qty: 4 }], (1500.0, 1000.0));
+    // dizme + DXF: alttan okunan paneller, küçükler büyüğün cebine/yanına girer
+    let big = only_part(&drawing(panel(&buyuk(), 8.0, &rot(0, 180.0), [0.0; 3], true), vec![]));
+    let small = only_part(&drawing(panel(&l_braket(), 8.0, &comp(rot(2, 33.0), rot(0, 180.0)), [0.0; 3], false), vec![]));
+    let tri = only_part(&drawing(panel(&ucgen(), 8.0, &rot(1, 180.0), [0.0; 3], true), vec![]));
+    nest_and_compare(
+        "3B ters paneller",
+        vec![
+            NestPart { id: big.id, name: "BUYUK".into(), shape: big.shape, qty: 2 },
+            NestPart { id: small.id, name: "L".into(), shape: small.shape, qty: 4 },
+            NestPart { id: tri.id, name: "UCGEN".into(), shape: tri.shape, qty: 6 },
+        ],
+        (3000.0, 1500.0),
+    );
 }

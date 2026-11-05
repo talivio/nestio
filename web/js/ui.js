@@ -7,7 +7,7 @@
 // Tema: localStorage 'theme' = 'light' | 'dark'; yoksa sistem tercihi izlenir
 // (Talivio ürünlerindeki anahtarla aynı). Sayfanın ilk boyaması index.html'deki
 // baş betiğinde yapılır; burası yalnız sonraki değişiklikleri uygular.
-import './i18n.js?v=20261105a';
+import './i18n.js?v=20261105b';
 
 const root = document.documentElement;
 const media = matchMedia('(prefers-color-scheme: dark)');
