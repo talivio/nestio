@@ -1,7 +1,7 @@
 //! Dizilimi çözücüden bağımsız denetler: her parça plakanın kenar payı içinde mi,
-//! iki parça arası boşluk en az istenen kadar mı, çakışma var mı.
+//! iki parça arası boşluk en az istenen kadar mı, çakışma var mı, parça aynalanmış mı.
 use crate::nest::{NestPart, PlateOut};
-use geo::{BoundingRect, Contains, Distance, Euclidean, Polygon, Rect, Rotate, Translate, coord};
+use geo::{Area, BoundingRect, Contains, Distance, Euclidean, Polygon, Rect, Rotate, Translate, coord};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
@@ -24,6 +24,18 @@ pub fn placed_poly(parts: &[NestPart], it: &crate::nest::Placed) -> Polygon<f64>
     parts[it.part].shape.poly().rotate_around_point(it.rot, geo::Point::new(0.0, 0.0)).translate(it.x, it.y)
 }
 
+/// Yerleşim yalnız döndürme + kaydırma olmalı. Aynalama dış konturun dönüş yönünü
+/// (işaretli alanını) ters çevirir; döndürme ve kaydırma çevirmez. Köşe sırası korunduğu
+/// için iki biçimin dış konturları karşılaştırılır.
+pub fn is_mirror(input: &Polygon<f64>, placed: &Polygon<f64>) -> bool {
+    let ext = |p: &Polygon<f64>| Polygon::new(p.exterior().clone(), vec![]).signed_area();
+    ext(input) * ext(placed) <= 0.0
+}
+
+pub fn mirrored(parts: &[NestPart], it: &crate::nest::Placed) -> bool {
+    is_mirror(&parts[it.part].shape.poly(), &placed_poly(parts, it))
+}
+
 pub fn check(parts: &[NestPart], plates: &[PlateOut], gap: f64, margin: f64) -> Check {
     let mut c = Check { ok: true, ..Default::default() };
     for (k, pl) in plates.iter().enumerate() {
@@ -33,6 +45,11 @@ pub fn check(parts: &[NestPart], plates: &[PlateOut], gap: f64, margin: f64) -> 
         for (n, g) in &gs {
             if !inner.contains(g) {
                 c.errors.push(format!("Plaka {}: {} kenar payının dışına taşıyor", k + 1, n));
+            }
+        }
+        for it in &pl.items {
+            if mirrored(parts, it) {
+                c.errors.push(format!("Plaka {}: {} aynalanmış", k + 1, parts[it.part].name));
             }
         }
         let mut min_d: Option<f64> = None;
@@ -56,4 +73,21 @@ pub fn check(parts: &[NestPart], plates: &[PlateOut], gap: f64, margin: f64) -> 
     }
     c.ok = c.errors.is_empty();
     c
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use geo::MapCoords;
+
+    #[test]
+    fn ayna_yakalanir_dondurme_gecer() {
+        let p = Polygon::new(vec![(0.0, 0.0), (220.0, 0.0), (0.0, 180.0)].into(), vec![]);
+        for deg in [0.0, 37.0, 90.0, 180.0, 271.5] {
+            let r = p.rotate_around_point(deg, geo::Point::new(0.0, 0.0)).translate(500.0, -40.0);
+            assert!(!is_mirror(&p, &r), "{deg}° döndürme ayna sayıldı");
+            assert!(is_mirror(&p, &r.map_coords(|c| coord! { x: -c.x, y: c.y })), "{deg}°: x aynası kaçtı");
+            assert!(is_mirror(&p, &r.map_coords(|c| coord! { x: c.x, y: -c.y })), "{deg}°: y aynası kaçtı");
+        }
+    }
 }

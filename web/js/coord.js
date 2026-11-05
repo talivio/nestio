@@ -1,12 +1,12 @@
 // Yönetici işçi: çizimi çözümler, plaka döngüsünü yürütür, şerit işlerini havuza dağıtır.
-import init, { dxf_to_drawing, analyze, nest, write_dxf, solve_strip } from '../pkg/nestio_wasm.js?v=20261104d';
+import init, { dxf_to_drawing, analyze, nest, write_dxf, solve_strip } from '../pkg/nestio_wasm.js?v=20261105a';
 
 const ready = init();
 let pool = [];
 let cancelled = false;
 
 function spawn() {
-  const w = new Worker(new URL('./pool.js?v=20261104d', import.meta.url), { type: 'module' });
+  const w = new Worker(new URL('./pool.js?v=20261105a', import.meta.url), { type: 'module' });
   w.busy = false;
   return w;
 }
