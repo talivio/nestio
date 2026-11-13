@@ -245,7 +245,7 @@ header.top nav > a:not(.btn):hover { color: var(--accent); }
 [data-theme=dark] .foot { background: #0b0c0e; }
 .foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px; }
 .foot-grid p { margin: 10px 0 0; max-width: 36ch; }
-.foot h4 { margin: 0 0 10px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--text); }
+.foot h3 { margin: 0 0 10px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--text); }
 .foot-grid a:not(.brand) { display: block; color: var(--muted); text-decoration: none; padding: 3px 0; }
 .foot-grid a:not(.brand):hover { color: var(--accent); }
 .foot-base { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: 36px; font-size: 12.5px; }
